@@ -5,7 +5,9 @@ const path = require('path');
 require('dotenv').config();
 
 // Connect to DB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/career-guidance')
+const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/career-guidance';
+console.log(`Attempting to connect to DB...`); // Don't log full URI for security in logs if real
+mongoose.connect(mongoURI)
     .then(() => console.log('MongoDB Connected to Seed'))
     .catch(err => console.log(err));
 

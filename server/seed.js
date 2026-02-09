@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 const { Career, Question, Roadmap, CollegeExam } = require('./models/models');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 // Connect to DB
-mongoose.connect('mongodb://localhost:27017/career-guidance')
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/career-guidance')
     .then(() => console.log('MongoDB Connected to Seed'))
     .catch(err => console.log(err));
 

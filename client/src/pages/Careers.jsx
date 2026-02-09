@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaSearch, FaFilter } from 'react-icons/fa';
+import config from '../config';
 
 const Careers = () => {
     const [careersData, setCareersData] = useState([]);
@@ -10,7 +11,7 @@ const Careers = () => {
     const [filterType, setFilterType] = useState('All');
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/careers')
+        fetch(`${config.API_URL}/careers`)
             .then(res => res.json())
             .then(data => {
                 setCareersData(data);

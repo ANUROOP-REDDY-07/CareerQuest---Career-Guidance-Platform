@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaCommentDots, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import config from '../config';
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +30,7 @@ const ChatWidget = () => {
         setIsTyping(true);
 
         try {
-            const res = await fetch('http://localhost:5000/api/chat', {
+            const res = await fetch(`${config.API_URL}/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: userMsg.text })

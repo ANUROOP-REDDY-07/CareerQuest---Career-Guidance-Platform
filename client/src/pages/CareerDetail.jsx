@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FaArrowLeft, FaGraduationCap, FaMoneyBillWave } from 'react-icons/fa';
+import config from '../config';
 
 const CareerDetail = () => {
     const { id } = useParams();
@@ -13,20 +14,20 @@ const CareerDetail = () => {
         const fetchData = async () => {
             try {
                 // Fetch Career
-                const careerRes = await fetch(`http://localhost:5000/api/careers/${id}`);
+                const careerRes = await fetch(`${config.API_URL}/careers/${id}`);
                 if (!careerRes.ok) throw new Error('Career not found');
                 const careerData = await careerRes.json();
                 setCareer(careerData);
 
                 // Fetch Roadmaps
-                const roadmapsRes = await fetch('http://localhost:5000/api/roadmaps');
+                const roadmapsRes = await fetch(`${config.API_URL}/roadmaps`);
                 const roadmapsData = await roadmapsRes.json();
                 // Filter roadmaps by stream if available
                 const relatedRoadmaps = roadmapsData.filter(r => r.stream === careerData.stream || r.stream === "Any Stream");
                 setRoadmaps(relatedRoadmaps);
 
                 // Fetch Colleges
-                const collegesRes = await fetch('http://localhost:5000/api/colleges');
+                const collegesRes = await fetch(`${config.API_URL}/colleges`);
                 const collegesData = await collegesRes.json();
                 // Filter colleges/exams by stream
                 const relatedColleges = collegesData.colleges.filter(c => c.stream === careerData.stream || c.stream === "Any Stream");

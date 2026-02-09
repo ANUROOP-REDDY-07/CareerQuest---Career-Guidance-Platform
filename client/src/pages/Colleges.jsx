@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
+import config from '../config';
 
 const Colleges = () => {
     const [activeTab, setActiveTab] = useState('exams');
@@ -9,7 +10,7 @@ const Colleges = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/colleges')
+        fetch(`${config.API_URL}/colleges`)
             .then(res => res.json())
             .then(data => {
                 setData(data); // Expecting { exams: [], colleges: [] } structure from API

@@ -22,9 +22,9 @@ const Colleges = () => {
             .then(res => res.json())
             .then(responseData => {
                 if (pageNum === 1) {
-                    setItems(responseData.items);
+                    setItems(responseData.items || []);
                 } else {
-                    setItems(prev => [...prev, ...responseData.items]);
+                    setItems(prev => [...prev, ...(responseData.items || [])]);
                 }
                 setHasMore(responseData.currentPage < responseData.totalPages);
                 setLoading(false);
@@ -51,7 +51,7 @@ const Colleges = () => {
     };
 
     // removed client-side filteredItems logic
-    const filteredItems = items;
+    const filteredItems = items || [];
 
     return (
         <div className="page colleges-page section">

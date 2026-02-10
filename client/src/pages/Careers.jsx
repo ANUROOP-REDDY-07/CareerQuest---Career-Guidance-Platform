@@ -59,9 +59,9 @@ const Careers = () => {
                 // WE MUST UPDATE BACKEND.
 
                 if (pageNum === 1) {
-                    setCareersData(data.careers);
+                    setCareersData(data.careers || []);
                 } else {
-                    setCareersData(prev => [...prev, ...data.careers]);
+                    setCareersData(prev => [...prev, ...(data.careers || [])]);
                 }
                 setHasMore(data.currentPage < data.totalPages);
                 setLoading(false);
@@ -83,7 +83,7 @@ const Careers = () => {
     // Actually, let's just pass the filter to backend! I'll update backend next.
 
     // Client-side filtering of incomplete data:
-    const filteredCareers = careersData.filter(career => {
+    const filteredCareers = (careersData || []).filter(career => {
         // We already server-side searched, so we just filter by type here if backend didn't do it.
         // If backend doesn't filter by type, we might show fewer items than limit.
         return filterType === 'All' || career.type === filterType;

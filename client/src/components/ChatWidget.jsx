@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaCommentDots, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import config from '../config';
 
 const ChatWidget = () => {
@@ -92,6 +93,8 @@ const ChatWidget = () => {
                             </button>
                         </div>
 
+
+
                         {/* Messages */}
                         <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {messages.map((msg, idx) => (
@@ -107,10 +110,24 @@ const ChatWidget = () => {
                                         borderBottomRightRadius: msg.sender === 'user' ? '2px' : '12px',
                                         borderBottomLeftRadius: msg.sender === 'ai' ? '2px' : '12px',
                                         boxShadow: msg.sender === 'ai' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
-                                        lineHeight: '1.5'
+                                        lineHeight: '1.5',
+                                        fontSize: '0.95rem'
                                     }}
                                 >
-                                    {msg.text}
+                                    {msg.sender === 'ai' ? (
+                                        <div className="markdown-body">
+                                            <ReactMarkdown
+                                                components={{
+                                                    a: ({ node, ...props }) => <a {...props} style={{ color: 'var(--primary)', textDecoration: 'underline' }} target="_blank" rel="noopener noreferrer" />,
+                                                    p: ({ node, ...props }) => <p {...props} style={{ marginBottom: '0.5rem', lastChild: { marginBottom: 0 } }} />
+                                                }}
+                                            >
+                                                {msg.text}
+                                            </ReactMarkdown>
+                                        </div>
+                                    ) : (
+                                        msg.text
+                                    )}
                                 </div>
                             ))}
                             {isTyping && (

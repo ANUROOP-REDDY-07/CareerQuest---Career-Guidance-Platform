@@ -6,27 +6,52 @@ import config from '../config';
 const Colleges = () => {
     const [activeTab, setActiveTab] = useState('exams');
     const [searchTerm, setSearchTerm] = useState('');
-    const [data, setData] = useState({ exams: [], colleges: [] });
+    const [data, setData] = useState({ exams: [], colleges: [] }); // We keep structure but might rename field to 'items' to match better
+    const [items, setItems] = useState([]); // Use a flat list for current view
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
-    useEffect(() => {
-        fetch(`${config.API_URL}/colleges`)
+    const fetchItems = (pageNum, search, tab) => {
+        setLoading(true);
+        const type = tab === 'exams' ? 'Exam' : 'College';
+        let url = `${config.API_URL}/colleges?page=${pageNum}&limit=10&type=${type}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+
+        fetch(url)
             .then(res => res.json())
-            .then(data => {
-                setData(data); // Expecting { exams: [], colleges: [] } structure from API
+            .then(responseData => {
+                if (pageNum === 1) {
+                    setItems(responseData.items);
+                } else {
+                    setItems(prev => [...prev, ...responseData.items]);
+                }
+                setHasMore(responseData.currentPage < responseData.totalPages);
                 setLoading(false);
             })
             .catch(err => {
-                console.error("Failed to fetch colleges data", err);
+                console.error("Failed to fetch data", err);
                 setLoading(false);
             });
-    }, []);
+    };
 
-    if (loading) return <div className="section container">Loading data...</div>;
+    // Debounce search and handle tab change
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setPage(1);
+            fetchItems(1, searchTerm, activeTab);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm, activeTab]);
 
-    const filteredItems = activeTab === 'exams'
-        ? data.exams.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()) || item.stream.toLowerCase().includes(searchTerm.toLowerCase()))
-        : data.colleges.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()) || item.stream.toLowerCase().includes(searchTerm.toLowerCase()));
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchItems(nextPage, searchTerm, activeTab);
+    };
+
+    // removed client-side filteredItems logic
+    const filteredItems = items;
 
     return (
         <div className="page colleges-page section">
@@ -68,7 +93,7 @@ const Colleges = () => {
                 <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
                     {filteredItems.map((item, index) => (
                         <motion.div
-                            key={item.id}
+                            key={item.id || index} // fallback key
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
@@ -112,8 +137,20 @@ const Colleges = () => {
                     ))}
                 </div>
 
-                {filteredItems.length === 0 && (
+                {filteredItems.length === 0 && !loading && (
                     <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '2rem' }}>No results found.</p>
+                )}
+
+                {hasMore && !searchTerm && (
+                    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                        <button
+                            onClick={handleLoadMore}
+                            disabled={loading}
+                            className="btn btn-primary"
+                        >
+                            {loading ? 'Loading...' : 'Load More'}
+                        </button>
+                    </div>
                 )}
             </div>
 

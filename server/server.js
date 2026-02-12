@@ -11,13 +11,26 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/career-guidance', {
     // These options are deprecated in newer mongoose versions but good for compatibility if needed
     // useNewUrlParser: true,
     // useUnifiedTopology: true,
 })
     .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.log(err));
+    .catch(err => {
+        console.error('MongoDB Connection Error:', err);
+        // Process might need to exit if DB is essential
+        // process.exit(1); 
+    });
+
+mongoose.connection.on('error', err => {
+    console.error('MongoDB Runtime Error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('MongoDB Disconnected');
+});
 
 // Routes (Placeholder)
 app.get('/', (req, res) => {

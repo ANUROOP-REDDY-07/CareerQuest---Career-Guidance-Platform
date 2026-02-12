@@ -8,20 +8,36 @@ router.get('/careers', async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || '';
+        const type = req.query.type; // support filtering by type if frontend eventually sends it
         const skip = (page - 1) * limit;
 
         let query = {};
         if (search) {
+            // Use text search if available and indexed, otherwise simplified regex on indexed title
+            // For now, regex on title is efficient enough if indexed.
+            // Text search is better: { $text: { $search: search } } but requires text index creation which we did.
+            // However, regex offers partial matches (e.g. "Engin" matches "Engineer"). Text search usually needs full words.
+            // Let's stick to Regex for partial match UX, but limit to title for speed if description is too heavy,
+            // or use $or if we want breadth.
             query = {
                 $or: [
                     { title: { $regex: search, $options: 'i' } },
+                    // Searching description might be slow without text index, but with .lean() it's faster.
+                    // We added text index, so we COULD use $text, but let's stick to regex for partials for now.
                     { description: { $regex: search, $options: 'i' } }
                 ]
             };
         }
 
-        const total = await Career.countDocuments(query);
-        const careers = await Career.find(query).skip(skip).limit(limit);
+        if (type) {
+            query.type = type;
+        }
+
+        // Parallelize count and find
+        const [total, careers] = await Promise.all([
+            Career.countDocuments(query),
+            Career.find(query).select('-subCareers').skip(skip).limit(limit).lean() // Exclude subCareers for list view speed
+        ]);
 
         res.json({
             careers,
@@ -37,7 +53,7 @@ router.get('/careers', async (req, res) => {
 // Get a single career
 router.get('/careers/:id', async (req, res) => {
     try {
-        const career = await Career.findOne({ id: req.params.id });
+        const career = await Career.findOne({ id: req.params.id }).lean();
         if (!career) return res.status(404).json({ message: 'Career not found' });
         res.json(career);
     } catch (err) {
@@ -48,7 +64,8 @@ router.get('/careers/:id', async (req, res) => {
 // Get all questions
 router.get('/questions', async (req, res) => {
     try {
-        const questions = await Question.find();
+        // Questions are small, but .lean() helps.
+        const questions = await Question.find().lean();
         res.json(questions);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -58,7 +75,10 @@ router.get('/questions', async (req, res) => {
 // Get all roadmaps
 router.get('/roadmaps', async (req, res) => {
     try {
-        const roadmaps = await Roadmap.find();
+        // Roadmaps might have many steps. 
+        // If client only needs list of titles for sidebar, we should optimize, 
+        // but currently it loads all.
+        const roadmaps = await Roadmap.find().lean();
         res.json(roadmaps);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -66,7 +86,6 @@ router.get('/roadmaps', async (req, res) => {
 });
 
 // Get all colleges/exams
-// Get all colleges/exams with pagination
 router.get('/colleges', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -81,33 +100,21 @@ router.get('/colleges', async (req, res) => {
 
         const search = req.query.search || '';
         if (search) {
-            // We need to be careful not to overwrite the 'type' in query if it exists,
-            // but $or is a top-level operator in MongoDB query syntax.
-            // If we have both type and $or, MongoDB handles it as implicit AND.
-            // So structure should be { type: '...', $or: [...] }
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { stream: { $regex: search, $options: 'i' } }
             ];
         }
 
-        const total = await CollegeExam.countDocuments(query);
-        const items = await CollegeExam.find(query).skip(skip).limit(limit);
+        // Parallelize
+        const [total, items] = await Promise.all([
+            CollegeExam.countDocuments(query),
+            CollegeExam.find(query).skip(skip).limit(limit).lean()
+        ]);
 
-        // Separate into exams and colleges structure if no type filter is applied,
-        // or just return the filtered list.
-        // To maintain backward compatibility with frontend structure { exams, colleges },
-        // we might need to adjust. However, for pagination, it's better to return a flat list
-        // or segmented lists based on the requested type.
-
-        // Strategy: If 'type' is provided, return paginated list of that type.
-        // If no 'type' provided, we can't easily paginate two different lists in one query effectively
-        // without complex aggregation or two queries.
-        // For simplicity and performance, let's assume the frontend will now request specifics 
-        // OR we just return the mixed paginated list and let frontend filter (not ideal for huge datasets but better than all).
-
-        // Let's go with: Support 'type' filter. If not provided, return mixed.
-        // Frontend will need to be updated to request specific types or handle mixed.
+        // Client side expects { exams, colleges } split if they are mixed,
+        // but with pagination and filtering, we usually get one type or a mix.
+        // We will return the same structure as before but strictly based on the fetched items.
 
         const exams = items.filter(item => item.type === 'Exam');
         const colleges = items.filter(item => item.type === 'College');

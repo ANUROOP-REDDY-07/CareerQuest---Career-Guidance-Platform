@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { FaCommentDots, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import config from '../config';
+import api from '../services/api';
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -31,12 +31,7 @@ const ChatWidget = () => {
         setIsTyping(true);
 
         try {
-            const res = await fetch(`${config.API_URL}/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMsg.text })
-            });
-            const data = await res.json();
+            const data = await api.post('/chat', { message: userMsg.text });
 
             setMessages(prev => [...prev, { text: data.reply, sender: 'ai' }]);
         } catch (error) {

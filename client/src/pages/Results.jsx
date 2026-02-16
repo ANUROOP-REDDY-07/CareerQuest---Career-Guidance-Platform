@@ -1,7 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import config from '../config';
+import api from '../services/api';
 
 const Results = () => {
     const location = useLocation();
@@ -10,8 +10,7 @@ const Results = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${config.API_URL}/careers`)
-            .then(res => res.json())
+        api.get('/careers')
             .then(data => {
                 setAllCareers(data);
                 setLoading(false);

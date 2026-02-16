@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
-import config from '../config';
+import api from '../services/api';
 
 const Colleges = () => {
     const [activeTab, setActiveTab] = useState('exams');
@@ -15,11 +15,10 @@ const Colleges = () => {
     const fetchItems = (pageNum, search, tab) => {
         setLoading(true);
         const type = tab === 'exams' ? 'Exam' : 'College';
-        let url = `${config.API_URL}/colleges?page=${pageNum}&limit=10&type=${type}`;
+        let url = `/colleges?page=${pageNum}&limit=10&type=${type}`;
         if (search) url += `&search=${encodeURIComponent(search)}`;
 
-        fetch(url)
-            .then(res => res.json())
+        api.get(url)
             .then(responseData => {
                 if (pageNum === 1) {
                     setItems(responseData.items || []);

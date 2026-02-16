@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import config from '../config';
+import api from '../services/api';
 
 const Assessment = () => {
     const [questions, setQuestions] = useState([]);
@@ -12,8 +12,7 @@ const Assessment = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`${config.API_URL}/questions`)
-            .then(res => res.json())
+        api.get('/questions')
             .then(data => {
                 setQuestions(data);
                 setLoading(false);

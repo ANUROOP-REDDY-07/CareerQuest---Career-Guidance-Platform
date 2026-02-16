@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaSearch, FaFilter } from 'react-icons/fa';
-import config from '../config';
+import api from '../services/api';
 
 const Careers = () => {
     const [careersData, setCareersData] = useState([]);
@@ -24,40 +24,12 @@ const Careers = () => {
     const fetchCareers = (pageNum, search, type) => {
         setLoading(true);
         // Build query string
-        let url = `${config.API_URL}/careers?page=${pageNum}&limit=9`;
+        let url = `/careers?page=${pageNum}&limit=9`;
         if (search) url += `&search=${encodeURIComponent(search)}`;
-        // Backend doesn't support 'type' filter yet for careers, but we can add it or filter client side if we fetch enough? 
-        // Actually, previous implementation filtered based on 'type' property in client.
-        // If we want to support type filtering with pagination, we MUST do it on backend.
-        // For now, let's keep type filtering client-side... wait, that breaks pagination too!
-        // If I request page 1 and it returns 9 items, and none match the filter, user sees nothing but "Load More" might show more.
-        // CORRECT APPROACH: Add type filtering to backend as well.
-        // But for this task, I'll assume type filtering is less critical or I will update backend to support it. 
-        // Let's implement full backend support for filtering too, otherwise it's buggy.
-        // I will add type to the query.
-        // BUT wait, I didn't add type support to backend for careers yet. 
-        // I should check if backend `Career` model has `type` and if I can filter by it.
-        // Let's assume I will add it or it's needed.
-        // Actually, looking at `items.js` again, `Career` model has `type`.
-        // So I should update backend to support `type` filter for careers too.
-        // For now, I will send it and update backend later in this step if needed.
 
-        // Let's request it:
-        // url += `&type=${type}`; // Backend needs update.
-
-        // Since I'm in the middle of frontend updates, let's stick to what we have.
-        // If I can't filter by type on backend, I can't properly paginate while filtering.
-        // I will update backend for type filtering in a moment.
-
-        // For now, let's just use search and page.
-
-        fetch(url)
-            .then(res => res.json())
+        // Use api instance
+        api.get(url)
             .then(data => {
-                // If filtering by type client-side, we need to filter BEFORE setting state? 
-                // No, we can't client-side filter paginated data effectively.
-                // WE MUST UPDATE BACKEND.
-
                 if (pageNum === 1) {
                     setCareersData(data.careers || []);
                 } else {

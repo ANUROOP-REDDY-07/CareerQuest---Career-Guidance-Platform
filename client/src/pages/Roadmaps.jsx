@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import config from '../config';
+import api from '../services/api';
 
 const Roadmaps = () => {
     const [roadmapsData, setRoadmapsData] = useState([]);
@@ -8,8 +8,7 @@ const Roadmaps = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${config.API_URL}/roadmaps`)
-            .then(res => res.json())
+        api.get('/roadmaps')
             .then(data => {
                 setRoadmapsData(data);
                 if (data.length > 0) setSelectedRoadmapId(data[0].id);

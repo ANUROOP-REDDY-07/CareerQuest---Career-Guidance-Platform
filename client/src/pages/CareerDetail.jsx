@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FaArrowLeft, FaGraduationCap, FaMoneyBillWave } from 'react-icons/fa';
-import config from '../config';
+import api from '../services/api';
 
 const CareerDetail = () => {
     const { id } = useParams();
@@ -14,21 +14,17 @@ const CareerDetail = () => {
         const fetchData = async () => {
             try {
                 // Fetch Career
-                const careerRes = await fetch(`${config.API_URL}/careers/${id}`);
-                if (!careerRes.ok) throw new Error('Career not found');
-                const careerData = await careerRes.json();
+                const careerData = await api.get(`/careers/${id}`);
                 setCareer(careerData);
 
                 // Fetch Roadmaps
-                const roadmapsRes = await fetch(`${config.API_URL}/roadmaps`);
-                const roadmapsData = await roadmapsRes.json();
+                const roadmapsData = await api.get('/roadmaps');
                 // Filter roadmaps by stream if available
                 const relatedRoadmaps = roadmapsData.filter(r => r.stream === careerData.stream || r.stream === "Any Stream");
                 setRoadmaps(relatedRoadmaps);
 
                 // Fetch Colleges
-                const collegesRes = await fetch(`${config.API_URL}/colleges`);
-                const collegesData = await collegesRes.json();
+                const collegesData = await api.get('/colleges');
                 // Filter colleges/exams by stream
                 const relatedColleges = collegesData.colleges.filter(c => c.stream === careerData.stream || c.stream === "Any Stream");
                 // We can also filter exams but let's stick to colleges for now or show both if needed

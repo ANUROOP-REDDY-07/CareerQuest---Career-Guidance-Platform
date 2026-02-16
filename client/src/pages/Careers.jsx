@@ -74,6 +74,7 @@ const Careers = () => {
 
                 {/* Search and Filter */}
                 <div className="card" style={{ padding: '1.5rem', marginBottom: '3rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    {/* ... (search input code remains same, I need to include it in replacement or targeted edit) ... */}
                     <div style={{ flex: 1, position: 'relative' }}>
                         <FaSearch style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                         <input
@@ -84,7 +85,7 @@ const Careers = () => {
                             style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 3rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', fontSize: '1rem' }}
                         />
                     </div>
-                    {/* ... filter buttons ... */}
+                    {/* ... (filter buttons code remains same) ... */}
                     <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
                         {['All', 'R', 'I', 'A', 'S', 'E', 'C'].map(type => (
                             <button
@@ -103,6 +104,23 @@ const Careers = () => {
                         ))}
                     </div>
                 </div>
+
+                {/* Loading State */}
+                {loading && careersData.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '4rem' }}>
+                        <div className="spinner" style={{
+                            width: '40px',
+                            height: '40px',
+                            border: '4px solid #e2e8f0',
+                            borderTopColor: 'var(--primary)',
+                            borderRadius: '50%',
+                            margin: '0 auto 1rem',
+                            animation: 'spin 1s linear infinite'
+                        }} />
+                        <p style={{ color: 'var(--text-muted)' }}>Loading careers...</p>
+                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                    </div>
+                )}
 
                 {/* Results Grid */}
                 <div className="grid grid-cols-3">

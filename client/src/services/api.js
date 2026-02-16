@@ -35,14 +35,37 @@ axiosRetry(api, {
     }
 });
 
-// Response interceptor to clear the message on success
+// Request interceptor to handle long-running requests (server sleeping)
+api.interceptors.request.use(config => {
+    // Set a timeout to trigger the message if the request takes too long (e.g., 3s)
+    // We attach the timer ID to the config so we can clear it in response
+    config.metadata = { startTime: new Date() };
+    config.slowRequestTimer = setTimeout(() => {
+        console.log('Request taking longer than 3s, server might be sleeping...');
+        triggerServerWakingUp();
+    }, 3000);
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
+// Response interceptor
 api.interceptors.response.use(
     (response) => {
+        // Clear the slow request timer
+        if (response.config.slowRequestTimer) {
+            clearTimeout(response.config.slowRequestTimer);
+        }
+
         // If we get a success response, the server is ready
         triggerServerReady();
         return response.data; // Return data directly to match fetch().json() behavior partially
     },
     (error) => {
+        // Clear timer on error too
+        if (error.config && error.config.slowRequestTimer) {
+            clearTimeout(error.config.slowRequestTimer);
+        }
         // If all retries fail, we might want to keep the error or show a global error
         // For now, just reject so the component can handle it
         return Promise.reject(error);

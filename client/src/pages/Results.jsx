@@ -31,7 +31,21 @@ const Results = () => {
         );
     }
 
-    if (loading) return <div className="section container">Loading results...</div>;
+    if (loading) return (
+        <div className="section container" style={{ textAlign: 'center', padding: '4rem' }}>
+            <div className="spinner" style={{
+                width: '40px',
+                height: '40px',
+                border: '4px solid #e2e8f0',
+                borderTopColor: 'var(--primary)',
+                borderRadius: '50%',
+                margin: '0 auto 1rem',
+                animation: 'spin 1s linear infinite'
+            }} />
+            <p style={{ color: 'var(--text-muted)' }}>Loading results...</p>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+    );
 
     // Calculate top 3 RIASEC types
     const sortedTypes = Object.entries(scores)

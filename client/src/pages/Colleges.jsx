@@ -89,52 +89,68 @@ const Colleges = () => {
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
-                    {filteredItems.map((item, index) => (
-                        <motion.div
-                            key={item.id || index} // fallback key
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="card"
-                            style={{ display: 'flex', flexDirection: 'column' }}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <h3 style={{ fontSize: '1.25rem' }}>{item.name}</h3>
-                                <span style={{
-                                    background: '#f3e8ff',
-                                    color: 'var(--accent)',
-                                    padding: '0.25rem 0.5rem',
-                                    borderRadius: '4px',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {item.stream}
-                                </span>
-                            </div>
+                {loading && items.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '4rem' }}>
+                        <div className="spinner" style={{
+                            width: '40px',
+                            height: '40px',
+                            border: '4px solid #e2e8f0',
+                            borderTopColor: 'var(--primary)',
+                            borderRadius: '50%',
+                            margin: '0 auto 1rem',
+                            animation: 'spin 1s linear infinite'
+                        }} />
+                        <p style={{ color: 'var(--text-muted)' }}>Loading data...</p>
+                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
+                        {filteredItems.map((item, index) => (
+                            <motion.div
+                                key={item.id || index} // fallback key
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="card"
+                                style={{ display: 'flex', flexDirection: 'column' }}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                    <h3 style={{ fontSize: '1.25rem' }}>{item.name}</h3>
+                                    <span style={{
+                                        background: '#f3e8ff',
+                                        color: 'var(--accent)',
+                                        padding: '0.25rem 0.5rem',
+                                        borderRadius: '4px',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        {item.stream}
+                                    </span>
+                                </div>
 
-                            {activeTab === 'exams' ? (
-                                <>
-                                    <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', flex: 1 }}>{item.description}</p>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                                        <FaCalendarAlt color="var(--primary)" />
-                                        <strong>Exam Date:</strong> {item.date}
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>
-                                        <FaMapMarkerAlt /> {item.location}
-                                    </div>
-                                    <p style={{ marginBottom: '1rem' }}><strong>Entrance:</strong> {item.exam}</p>
-                                    <div style={{ marginTop: 'auto', textAlign: 'right', fontWeight: 'bold', color: '#eab308' }}>
-                                        Rating: {item.rating}
-                                    </div>
-                                </>
-                            )}
-                        </motion.div>
-                    ))}
-                </div>
+                                {activeTab === 'exams' ? (
+                                    <>
+                                        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', flex: 1 }}>{item.description}</p>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                                            <FaCalendarAlt color="var(--primary)" />
+                                            <strong>Exam Date:</strong> {item.date}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>
+                                            <FaMapMarkerAlt /> {item.location}
+                                        </div>
+                                        <p style={{ marginBottom: '1rem' }}><strong>Entrance:</strong> {item.exam}</p>
+                                        <div style={{ marginTop: 'auto', textAlign: 'right', fontWeight: 'bold', color: '#eab308' }}>
+                                            Rating: {item.rating}
+                                        </div>
+                                    </>
+                                )}
+                            </motion.div>
+                        ))}
+                    </div>
+                )} // End of loading ternary
 
                 {filteredItems.length === 0 && !loading && (
                     <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '2rem' }}>No results found.</p>
@@ -150,7 +166,7 @@ const Colleges = () => {
                             {loading ? 'Loading...' : 'Load More'}
                         </button>
                     </div>
-                )}
+                )} // End of loading ternary
             </div>
 
             <style>{`

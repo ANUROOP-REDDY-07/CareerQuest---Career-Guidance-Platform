@@ -150,7 +150,7 @@ const Colleges = () => {
                             </motion.div>
                         ))}
                     </div>
-                )} // End of loading ternary
+                )} 
 
                 {filteredItems.length === 0 && !loading && (
                     <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '2rem' }}>No results found.</p>
@@ -166,7 +166,7 @@ const Colleges = () => {
                             {loading ? 'Loading...' : 'Load More'}
                         </button>
                     </div>
-                )} // End of loading ternary
+                )} 
             </div>
 
             <style>{`
